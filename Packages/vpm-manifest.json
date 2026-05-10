@@ -1,1 +1,13 @@
-{"dependencies": {}, "locked": {}}
+{
+  "dependencies": {
+    "com.llealloo.audiolink": {
+      "version": "3.1.2"
+    }
+  },
+  "locked": {
+    "com.llealloo.audiolink": {
+      "version": "3.1.2",
+      "dependencies": {}
+    }
+  }
+}
