@@ -1,7 +1,7 @@
 {
   "name": "tokyo.chigiri.pasocommate.rendermate",
   "displayName": "RenderMate",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Core shader and material toolkit required by PasocomMate packages for VRChat worlds.",
   "unity": "2022.3",
   "license": "MIT",
