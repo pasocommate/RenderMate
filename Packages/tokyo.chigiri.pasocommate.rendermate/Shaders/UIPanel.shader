@@ -8,8 +8,7 @@ Shader "RenderMate/UIPanel"
 
         // uGUI が Image.mainTexture を `_MainTex` にアサインしようとするため、
         // 定義が無いと "doesn't have a texture property '_MainTex'" の警告が出る。
-        // 実体は参照せずダミーとして宣言だけしておく。
-        [HideInInspector] _MainTex ("MainTex (uGUI compat, unused)", 2D) = "white" {}
+        [HideInInspector] _MainTex ("MainTex (uGUI compat)", 2D) = "white" {}
 
 
         // ---- コーナー形状: SDF でアンチエイリアス付きに描画 ----
@@ -35,8 +34,10 @@ Shader "RenderMate/UIPanel"
         // x:開始位置(LINEAR) or 内側半径(RADIAL) / y:終了位置(LINEAR) or 外側半径(RADIAL) / z,w:楕円のアスペクト比(RADIAL のみ)
         _GradientRange ("Gradient Range", Vector) = (0,0.5,1,1)
 
-        // ---- Video Gamma: RawImage の _MainTex をガンマ補正付きでサンプリングする ----
-        [Toggle(_VIDEO_GAMMA)] _VideoGamma ("Video Gamma Correction", Float) = 0
+        // ---- MainTex: RawImage の _MainTex をサンプリングする ----
+        [Toggle(_USE_MAINTEX)] _UseMainTex ("Use MainTex", Float) = 0
+        _Gamma ("Gamma", Float) = 2.2
+        _FlipY ("Flip Y", Float) = 0
 
         // ---- MSDF: Base Texture を MSDF として解釈して SDF アンチエイリアスを適用する ----
         // ON のとき _BaseTex は RGB が MSDF 距離チャンネル、アルファは Median3 由来の被覆率に置き換わり、
@@ -146,7 +147,7 @@ Shader "RenderMate/UIPanel"
             // shader_feature_local にしてプロジェクト内で実際に使われているバリアントだけをビルドする。
             #pragma shader_feature_local _CORNER_SQUARE _CORNER_ROUND _CORNER_OCTAGON
             #pragma shader_feature_local _ _USE_MSDF
-            #pragma shader_feature_local __ _VIDEO_GAMMA
+            #pragma shader_feature_local __ _USE_MAINTEX
             // RADIAL は EvaluateRadial01 が重いのでバリアント分離。
             // LINEAR は頂点計算済みで軽いため NONE と同一バリアントに統合し _GRADIENT uniform で分岐。
             #pragma shader_feature_local _ _GRADIENT_RADIAL
@@ -203,9 +204,9 @@ Shader "RenderMate/UIPanel"
             float4 _BaseTex_ST;
             float4 _BaseTex_TexelSize;
 
-            #if defined(_VIDEO_GAMMA)
             sampler2D _MainTex;
-            #endif
+            float _Gamma;
+            float _FlipY;
 
             float4 _Color;
 
@@ -324,17 +325,19 @@ Shader "RenderMate/UIPanel"
             fixed4 frag(v2f IN) : SV_Target
             {
                 float4 currentColor = _Color;
-                #if defined(_VIDEO_GAMMA)
-                float4 baseSample = tex2D(_MainTex, IN.uv);
+                #if defined(_USE_MAINTEX)
+                float2 mainUV = IN.uv;
+                mainUV.y = lerp(mainUV.y, 1.0 - mainUV.y, _FlipY);
+                float4 baseSample = tex2D(_MainTex, mainUV);
                 #ifndef UNITY_COLORSPACE_GAMMA
-                baseSample.rgb = pow(baseSample.rgb, 2.2);
+                baseSample.rgb = pow(baseSample.rgb, _Gamma);
                 #endif
                 #else
                 float2 baseUV = IN.uv * _BaseTex_ST.xy + _BaseTex_ST.zw;
                 float4 baseSample = tex2D(_BaseTex, baseUV);
                 #endif
                 float baseTexAlpha = baseSample.a;
-                #if defined(_USE_MSDF)
+                #if defined(_USE_MSDF) && !defined(_USE_MAINTEX)
                 {
                     baseTexAlpha = RmMsdfAlpha(baseSample, baseUV, _BaseTex_TexelSize.xy, _MSDFPixelRange);
                     baseSample.rgb = float3(1, 1, 1);

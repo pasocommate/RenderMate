@@ -29,7 +29,9 @@ namespace RenderMate.Editor
         {
             // ベースカラー
             { "_BaseTex", "パネルに貼るベーステクスチャ" },
-            { "_VideoGamma", "RawImage の _MainTex をガンマ補正付きでサンプリングする (ビデオ RenderTexture 用)" },
+            { "_UseMainTex", "RawImage の _MainTex をサンプリングする" },
+            { "_Gamma", "Linear 色空間で _MainTex サンプルに適用するガンマ補正指数。1 で補正なし" },
+            { "_FlipY", "_MainTex サンプリング時に UV の Y 軸を反転する" },
             { "_UseMSDF", "ベーステクスチャを MSDF (Multi-channel Signed Distance Field) として解釈する" },
             { "_MSDFPixelRange", "MSDF テクスチャ生成時に指定した pxRange の値。アンチエイリアス幅に影響する" },
             { "_Color", "ベースカラーに乗算する色 (HDR 対応)" },
@@ -89,7 +91,7 @@ namespace RenderMate.Editor
         static readonly string[] ToggleKeywords =
         {
             "_USE_MSDF",
-            "_VIDEO_GAMMA",
+            "_USE_MAINTEX",
             "_MATCAP_ON",
             "_BLUR_ON",
         };
@@ -97,7 +99,7 @@ namespace RenderMate.Editor
         static readonly string[] ToggleProperties =
         {
             "_UseMSDF",
-            "_VideoGamma",
+            "_UseMainTex",
             "_MatcapOn",
             "_BlurOn",
         };
@@ -256,15 +258,22 @@ namespace RenderMate.Editor
         static void DrawBaseColorSection(
             MaterialEditor materialEditor,
             MaterialProperty baseTex,
-            MaterialProperty videoGamma,
+            MaterialProperty useMainTex,
+            MaterialProperty gamma,
+            MaterialProperty flipY,
             MaterialProperty useMSDF,
             MaterialProperty msdfPixelRange,
             MaterialProperty color)
         {
             DrawSectionHeader("ベースカラー");
             EditorGUI.indentLevel++;
-            DrawProp(materialEditor, videoGamma);
-            if (!IsToggleOn(videoGamma))
+            DrawProp(materialEditor, useMainTex);
+            if (IsToggleOn(useMainTex))
+            {
+                DrawProp(materialEditor, gamma);
+                DrawProp(materialEditor, flipY);
+            }
+            else
             {
                 DrawProp(materialEditor, baseTex);
                 DrawProp(materialEditor, useMSDF);
@@ -507,7 +516,9 @@ namespace RenderMate.Editor
             materialEditor.SetDefaultGUIWidths();
 
             var baseTex = FindProperty("_BaseTex", properties, false);
-            var videoGamma = FindProperty("_VideoGamma", properties, false);
+            var useMainTex = FindProperty("_UseMainTex", properties, false);
+            var gamma = FindProperty("_Gamma", properties, false);
+            var flipY = FindProperty("_FlipY", properties, false);
             var useMSDF = FindProperty("_UseMSDF", properties, false);
             var msdfPixelRange = FindProperty("_MSDFPixelRange", properties, false);
             var color = FindProperty("_Color", properties, false);
@@ -566,7 +577,9 @@ namespace RenderMate.Editor
             DrawBaseColorSection(
                 materialEditor,
                 baseTex,
-                videoGamma,
+                useMainTex,
+                gamma,
+                flipY,
                 useMSDF,
                 msdfPixelRange,
                 color);
