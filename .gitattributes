@@ -1,0 +1,54 @@
+# リポジトリの改行コード方針: テキストはすべて LF に正規化する。
+# Unity 公式 / VRChat / AudioLink と同じ「リポジトリ正準形 = LF」の慣行に合わせる。
+
+# 既定: テキストを自動判定し、リポジトリ・作業ツリーとも LF に統一
+* text=auto eol=lf
+
+# --- Unity のテキスト / YAML 系資産（LF を明示）---
+*.cs         text eol=lf
+*.shader     text eol=lf
+*.cginc      text eol=lf
+*.hlsl       text eol=lf
+*.compute    text eol=lf
+*.meta       text eol=lf
+*.unity      text eol=lf
+*.asset      text eol=lf
+*.prefab     text eol=lf
+*.mat        text eol=lf
+*.anim       text eol=lf
+*.controller text eol=lf
+*.asmdef     text eol=lf
+*.json       text eol=lf
+*.md         text eol=lf
+*.txt        text eol=lf
+*.uss        text eol=lf
+*.uxml       text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+
+# --- バイナリ（正規化禁止）---
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.gif        binary
+*.psd        binary
+*.tga        binary
+*.tif        binary
+*.exr        binary
+*.hdr        binary
+*.cubemap    binary
+*.fbx        binary
+*.obj        binary
+*.blend      binary
+*.wav        binary
+*.mp3        binary
+*.ogg        binary
+*.aif        binary
+*.ttf        binary
+*.otf        binary
+*.dll        binary
+*.so         binary
+*.dylib      binary
+*.bundle     binary
+*.a          binary
+*.unitypackage binary

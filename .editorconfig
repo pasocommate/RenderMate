@@ -1,0 +1,20 @@
+# エディタの保存挙動を統一する（Unity 公式パッケージと同じく LF を強制）。
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{shader,cginc,hlsl,compute}]
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,uss,uxml,asmdef}]
+indent_style = space
+indent_size = 2
