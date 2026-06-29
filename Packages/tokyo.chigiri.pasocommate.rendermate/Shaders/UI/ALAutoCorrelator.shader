@@ -1,4 +1,4 @@
-Shader "RenderMate/AudioLink/ALAutoCorrelator"
+Shader "RenderMate/UI/ALAutoCorrelator"
 {
     Properties
     {

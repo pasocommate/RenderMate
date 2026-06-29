@@ -1,4 +1,4 @@
-Shader "RenderMate/HUD/Progress"
+Shader "RenderMate/UI/HudProgress"
 {
     // 視界に張り付く HUD プログレス表示。Bar / Pie の 2 モード切替。
     // ZTest Always で常に最前面、Blend SrcAlpha OneMinusSrcAlpha で半透明合成。
@@ -43,7 +43,7 @@ Shader "RenderMate/HUD/Progress"
             #pragma multi_compile_local _MODE_BAR _MODE_PIE
             #pragma shader_feature_local __ _DECAL_ON
             #include "UnityCG.cginc"
-            #include "MSDF.cginc"
+            #include "../Includes/MSDF.cginc"
 
             struct appdata
             {

@@ -1,4 +1,4 @@
-Shader "RenderMate/AudioLink/AL4BandHistory"
+Shader "RenderMate/UI/AL4BandHistory"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-Shader "RenderMate/UIPanel"
+Shader "RenderMate/UI/UIPanel"
 {
     Properties
     {
@@ -267,12 +267,12 @@ Shader "RenderMate/UIPanel"
             int _AudioLinkBorderFilter;
             float _AudioLinkBorderIntensity;
 
-            #include "MSDF.cginc"
-            #include "SDFShape.cginc"
-            #include "Matcap.cginc"
-            #include "GradientDissolve.cginc"
-            #include "AudioLinkSampling.cginc"
-            #include "BlurDisk.cginc"
+            #include "../Includes/MSDF.cginc"
+            #include "../Includes/SDFShape.cginc"
+            #include "../Includes/Matcap.cginc"
+            #include "../Includes/GradientDissolve.cginc"
+            #include "../Includes/AudioLinkSampling.cginc"
+            #include "../Includes/BlurDisk.cginc"
 
             v2f vert(appdata_t v)
             {
