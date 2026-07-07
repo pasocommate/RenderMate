@@ -37,7 +37,6 @@ Shader "RenderMate/UI/UIPanel"
         // ---- MainTex: RawImage の _MainTex をサンプリングする ----
         [Toggle(_USE_MAINTEX)] _UseMainTex ("Use MainTex", Float) = 0
         _Gamma ("Gamma", Float) = 2.2
-        _FlipY ("Flip Y", Float) = 0
 
         // ---- MSDF: Base Texture を MSDF として解釈して SDF アンチエイリアスを適用する ----
         // ON のとき _BaseTex は RGB が MSDF 距離チャンネル、アルファは Median3 由来の被覆率に置き換わり、
@@ -205,8 +204,8 @@ Shader "RenderMate/UI/UIPanel"
             float4 _BaseTex_TexelSize;
 
             sampler2D _MainTex;
+            float4 _MainTex_ST;
             float _Gamma;
-            float _FlipY;
 
             float4 _Color;
 
@@ -326,8 +325,7 @@ Shader "RenderMate/UI/UIPanel"
             {
                 float4 currentColor = _Color;
                 #if defined(_USE_MAINTEX)
-                float2 mainUV = IN.uv;
-                mainUV.y = lerp(mainUV.y, 1.0 - mainUV.y, _FlipY);
+                float2 mainUV = IN.uv * _MainTex_ST.xy + _MainTex_ST.zw;
                 float4 baseSample = tex2D(_MainTex, mainUV);
                 #ifndef UNITY_COLORSPACE_GAMMA
                 baseSample.rgb = pow(baseSample.rgb, _Gamma);

@@ -31,7 +31,6 @@ namespace RenderMate.Editor
             { "_BaseTex", "パネルに貼るベーステクスチャ" },
             { "_UseMainTex", "RawImage の _MainTex をサンプリングする" },
             { "_Gamma", "Linear 色空間で _MainTex サンプルに適用するガンマ補正指数。1 で補正なし" },
-            { "_FlipY", "_MainTex サンプリング時に UV の Y 軸を反転する" },
             { "_UseMSDF", "ベーステクスチャを MSDF (Multi-channel Signed Distance Field) として解釈する" },
             { "_MSDFPixelRange", "MSDF テクスチャ生成時に指定した pxRange の値。アンチエイリアス幅に影響する" },
             { "_Color", "ベースカラーに乗算する色 (HDR 対応)" },
@@ -234,6 +233,53 @@ namespace RenderMate.Editor
             materialEditor.ShaderProperty(prop, new GUIContent(displayLabel, tooltip));
         }
 
+        static Vector2 DrawVector2Row(string label, Vector2 value)
+        {
+            Rect row = EditorGUILayout.GetControlRect();
+            row = EditorGUI.IndentedRect(row);
+
+            float labelWidth = Mathf.Clamp(row.width * 0.28f, 72f, 110f);
+            float axisWidth = 14f;
+            float gap = 4f;
+            float fieldWidth = Mathf.Max(44f, (row.width - labelWidth - axisWidth * 2f - gap * 5f) * 0.5f);
+
+            Rect labelRect = new Rect(row.x, row.y, labelWidth, row.height);
+            float x = labelRect.xMax + gap;
+            Rect xLabelRect = new Rect(x, row.y, axisWidth, row.height);
+            x += axisWidth + gap;
+            Rect xFieldRect = new Rect(x, row.y, fieldWidth, row.height);
+            x += fieldWidth + gap;
+            Rect yLabelRect = new Rect(x, row.y, axisWidth, row.height);
+            x += axisWidth + gap;
+            Rect yFieldRect = new Rect(x, row.y, fieldWidth, row.height);
+
+            EditorGUI.LabelField(labelRect, label);
+            EditorGUI.LabelField(xLabelRect, "X");
+            value.x = EditorGUI.FloatField(xFieldRect, value.x);
+            EditorGUI.LabelField(yLabelRect, "Y");
+            value.y = EditorGUI.FloatField(yFieldRect, value.y);
+            return value;
+        }
+
+        static void DrawTextureScaleOffset(MaterialProperty prop)
+        {
+            if (prop == null)
+                return;
+
+            Vector4 st = prop.textureScaleAndOffset;
+            Vector2 tiling = new Vector2(st.x, st.y);
+            Vector2 offset = new Vector2(st.z, st.w);
+
+            EditorGUI.BeginChangeCheck();
+            bool previousMixedValue = EditorGUI.showMixedValue;
+            EditorGUI.showMixedValue = prop.hasMixedValue;
+            tiling = DrawVector2Row("Tiling", tiling);
+            offset = DrawVector2Row("Offset", offset);
+            EditorGUI.showMixedValue = previousMixedValue;
+            if (EditorGUI.EndChangeCheck())
+                prop.textureScaleAndOffset = new Vector4(tiling.x, tiling.y, offset.x, offset.y);
+        }
+
         static void DrawSubHeading(string label)
         {
             EditorGUILayout.Space(2f);
@@ -258,9 +304,9 @@ namespace RenderMate.Editor
         static void DrawBaseColorSection(
             MaterialEditor materialEditor,
             MaterialProperty baseTex,
+            MaterialProperty mainTex,
             MaterialProperty useMainTex,
             MaterialProperty gamma,
-            MaterialProperty flipY,
             MaterialProperty useMSDF,
             MaterialProperty msdfPixelRange,
             MaterialProperty color)
@@ -271,7 +317,7 @@ namespace RenderMate.Editor
             if (IsToggleOn(useMainTex))
             {
                 DrawProp(materialEditor, gamma);
-                DrawProp(materialEditor, flipY);
+                DrawTextureScaleOffset(mainTex);
             }
             else
             {
@@ -516,9 +562,9 @@ namespace RenderMate.Editor
             materialEditor.SetDefaultGUIWidths();
 
             var baseTex = FindProperty("_BaseTex", properties, false);
+            var mainTex = FindProperty("_MainTex", properties, false);
             var useMainTex = FindProperty("_UseMainTex", properties, false);
             var gamma = FindProperty("_Gamma", properties, false);
-            var flipY = FindProperty("_FlipY", properties, false);
             var useMSDF = FindProperty("_UseMSDF", properties, false);
             var msdfPixelRange = FindProperty("_MSDFPixelRange", properties, false);
             var color = FindProperty("_Color", properties, false);
@@ -577,9 +623,9 @@ namespace RenderMate.Editor
             DrawBaseColorSection(
                 materialEditor,
                 baseTex,
+                mainTex,
                 useMainTex,
                 gamma,
-                flipY,
                 useMSDF,
                 msdfPixelRange,
                 color);
